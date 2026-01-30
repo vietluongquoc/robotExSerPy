@@ -8,6 +8,7 @@ class   UserProfile(models.Model):
     last_name = models.CharField(max_length=30)
     last_login = models.DateTimeField(auto_now=True)
     password = models.CharField(max_length=128)
+    device_id = models.CharField(max_length=255, blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):

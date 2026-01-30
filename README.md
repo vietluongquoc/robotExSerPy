@@ -10,3 +10,5 @@ This is the web server of Django server
 ## Requirement
 - Django
 - 
+
+- https://app.readthedocs.org/projects/django/downloads/pdf/6.0.x/
