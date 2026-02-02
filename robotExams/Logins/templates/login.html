@@ -83,7 +83,8 @@
 <body>
     <div class="login-container">
         <h1>Login</h1>
-        <form>
+        <form action="{% url 'exams/' %}" method="POST">
+            {% csrf_token %}
             <div class="form-group">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required>

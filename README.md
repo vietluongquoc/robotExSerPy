@@ -12,3 +12,8 @@ This is the web server of Django server
 - 
 
 - https://app.readthedocs.org/projects/django/downloads/pdf/6.0.x/
+
+```
+    pip install django
+    pip install django-import-export
+```

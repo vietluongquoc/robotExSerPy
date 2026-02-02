@@ -11,5 +11,8 @@ class   UserProfile(models.Model):
     device_id = models.CharField(max_length=255, blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
+    questionArray = models.JSONField(default=list, blank=True)
+    answerArray = models.JSONField(default=list, blank=True)
+
     def __str__(self):
         return self.user_name
