@@ -83,7 +83,10 @@
 <body>
     <div class="login-container">
         <h1>Login</h1>
-        <form action="{% url 'exams/' %}" method="POST">
+        {% if error %}
+            <p style="color: red; text-align: center; margin-bottom: 20px;">{{ error }}</p>
+        {% endif %}
+        <form action="{% url 'login' %}" method="POST">
             {% csrf_token %}
             <div class="form-group">
                 <label for="username">Username</label>
