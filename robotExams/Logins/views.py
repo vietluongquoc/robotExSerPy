@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 
@@ -9,6 +9,8 @@ def login_view(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
+
+        print(f"Attempting login for user: {username}, password: {password}")
         
         if user is not None:
             login(request, user)
@@ -18,13 +20,15 @@ def login_view(request):
     
     return render(request, 'login.html')
 
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
 @login_required
 def exams(request):
     if request.method == "POST":
-        print(request.POST)  # Prints the POSTed data as a QueryDict
         username = request.POST.get('username')
         password = request.POST.get('password')
-        # Here you would typically validate the username and password
-        # For demonstration, we will just print them
-        print(f"Username: {username}, Password: {password}")
+        
+
     return render(request, "exams.html")
