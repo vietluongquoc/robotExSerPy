@@ -49,6 +49,25 @@
         button:hover {
             background-color: #0056b3;
         }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .nav-buttons button {
+            flex: 1;
+        }
+        .nav-buttons button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .question-counter {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -60,23 +79,234 @@
             {% csrf_token %}
             <button type="submit">Logout</button>
         </form>
-        <form>
-            <div class="question">
-                <div class="question-text">1. What is the capital of France?</div>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" name="q1" value="a"> Paris
-                    </div>
-                    <div class="option">
-                        <input type="radio" name="q1" value="b"> London
-                    </div>
-                    <div class="option">
-                        <input type="radio" name="q1" value="c"> Berlin
-                    </div>
-                </div>
+        <form id="examForm">
+            <div class="question-counter">
+                <span id="questionCounter">Question 1 of 10</span>
             </div>
-            <button type="submit">Submit</button>
+            <div id="questionsContainer"></div>
+            <div class="nav-buttons">
+                <button type="button" id="prevBtn" onclick="previousQuestion()">Previous</button>
+                <button type="button" id="nextBtn" onclick="nextQuestion()">Next</button>
+                <button type="submit" id="submitBtn" style="display:none;">Submit</button>
+            </div>
         </form>
     </div>
+    <script>
+       const questiondb = [
+        {
+            id:1,
+            questiontype: "MC",
+            questionText: "Robot công nghiệp được định nghĩa chính xác nhất là gì?",
+            ispicture: false,
+            picture: "",
+            optionA: "Một máy tự động chỉ thực hiện được một thao tác cố định",
+            optionB: "Một thiết bị cơ khí có thể lập trình để thực hiện các nhiệm vụ khác nhau",
+            optionC: "Một hệ thống máy tính điều khiển dây chuyền sản xuất",
+            optionD: "Một cánh tay cơ khí không cần bộ điều khiển",
+        },
+        {
+            id:2,
+            questiontype: "MC",
+            questionText: "Nguyên tắc hoạt động cơ bản của robot công nghiệp là gì?",
+            ispicture: false,
+            picture: "",
+            optionA: "Sử dụng năng lượng mặt trời để vận hành",
+            optionB: "Thực hiện các nhiệm vụ lặp đi lặp lại theo lập trình trước",
+            optionC: "Tự học và thích nghi với môi trường xung quanh",
+            optionD: "Hoạt động dựa trên cảm biến sinh học",
+        },
+        {
+            id:3,
+            questiontype: "MC",
+            questionText: "Bộ phận nào của robot công nghiệp chịu trách nhiệm xử lý chương trình và điều khiển chuyển động?",
+            ispicture: false,
+            picture: "",
+            optionA: "Cơ cấu chấp hành",
+            optionB: "Bộ cảm biến",
+            optionC: "Bộ điều khiển (Controller)",
+            optionD: "Đế robot",
+        },
+        {
+            id:4,
+            questiontype: "MC",
+            questionText: "Ngôn ngữ lập trình robot công nghiệp thường dùng để mô tả điều gì?",
+            ispicture: false,
+            picture: "",
+            optionA: "Giao diện người–máy",
+            optionB: "Quỹ đạo chuyển động và thao tác của robot",
+            optionC: "Thiết kế cơ khí của robot",
+            optionD: "Hệ thống điện cung cấp nguồn",
+        },
+        {
+            id:5,
+            questiontype: "MC",
+            questionText: "Trong lập trình robot, chuyển động PTP (Point to Point) có đặc điểm nào sau đây?",
+            ispicture: false,
+            picture: "",
+            optionA: "Robot di chuyển theo đường thẳng tuyệt đối",
+            optionB: "Robot di chuyển theo quỹ đạo tròn",
+            optionC: "Robot chỉ quan tâm vị trí đầu và cuối",
+            optionD: "Robot di chuyển với vận tốc không đổi",
+        },
+        
+        {
+            id:6,
+            questiontype: "MC",
+            questionText: "Thiết bị nào thường dùng để dạy (teach) vị trí cho robot công nghiệp?",
+            ispicture: false,
+            picture: "",
+            optionA: "Máy tính cá nhân",
+            optionB: "Tay dạy (Teach Pendant)",
+            optionC: "PLC",
+            optionD: "Biến tần",
+        },
+        {
+            id:7,
+            questiontype: "MC",
+            questionText: "Cảm biến nào thường được sử dụng để phát hiện vật thể trong vùng làm việc của robot?",
+            ispicture: false,
+            picture: "",
+            optionA: "Cảm biến nhiệt",
+            optionB: "Cảm biến áp suất",
+            optionC: "Cảm biến tiệm cận",
+            optionD: "Cảm biến âm thanh",
+        },
+        {
+            id:8,
+            questiontype: "MC",
+            questionText: "Trong hệ thống điều khiển robot, PID là viết tắt của gì?",
+            ispicture: false,
+            picture: "",
+            optionA: "Proportional-Integral-Derivative",
+            optionB: "Position-Input-Data",
+            optionC: "Power-Interface-Device",
+            optionD: "Process-Information-Diagram",
+        },
+        {
+            id:9,
+            questiontype: "MC",
+            questionText: "Trong động học thuận của robot công nghiệp, đầu vào và đầu ra lần lượt là gì?",
+            ispicture: false,
+            picture: "",
+            optionA: "Vị trí TCP → góc khớp",
+            optionB: "Góc khớp → vị trí và hướng TCP",
+            optionC: "Lực tác động → vận tốc",
+            optionD: "Thời gian → quỹ đạo",
+        },
+        {
+            id:10,
+            questiontype: "MC",
+            questionText: "Mô hình Denavit–Hartenberg (D-H) được sử dụng chủ yếu để làm gì?",
+            ispicture: false,
+            picture: "",
+            optionA: "Mô tả cấu trúc cơ khí của robot",
+            optionB: "Xác định các tham số để phân tích động học của robot",    
+            optionC: "Lập trình chuyển động của robot",
+            optionD: "Thiết kế hệ thống điều khiển điện tử",
+        },
+    ];
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+        
+        // Function to show current question
+        function showQuestion(index) {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            
+            const question = questiondb[index];
+            
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question';
+            
+            const questionTextDiv = document.createElement('div');
+            questionTextDiv.className = 'question-text';
+            questionTextDiv.textContent = `${index + 1}. ${question.questionText}`;
+            
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'options';
+            
+            const options = [
+                { label: 'A', value: 'A', text: question.optionA },
+                { label: 'B', value: 'B', text: question.optionB },
+                { label: 'C', value: 'C', text: question.optionC },
+                { label: 'D', value: 'D', text: question.optionD }
+            ];
+            
+            options.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = `q${question.id}`;
+                input.value = option.value;
+                input.id = `q${question.id}_${option.value}`;
+                
+                // Check if this answer was previously selected
+                if (userAnswers[question.id] === option.value) {
+                    input.checked = true;
+                }
+                
+                // Save answer when selected
+                input.addEventListener('change', function() {
+                    userAnswers[question.id] = option.value;
+                });
+                
+                const label = document.createElement('label');
+                label.htmlFor = input.id;
+                label.appendChild(document.createTextNode(` ${option.label}. ${option.text}`));
+                
+                optionDiv.appendChild(input);
+                optionDiv.appendChild(label);
+                optionsDiv.appendChild(optionDiv);
+            });
+            
+            questionDiv.appendChild(questionTextDiv);
+            questionDiv.appendChild(optionsDiv);
+            container.appendChild(questionDiv);
+            
+            // Update question counter
+            document.getElementById('questionCounter').textContent = 
+                `Question ${index + 1} of ${questiondb.length}`;
+            
+            // Update button visibility
+            document.getElementById('prevBtn').disabled = index === 0;
+            
+            if (index === questiondb.length - 1) {
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('submitBtn').style.display = 'block';
+            } else {
+                document.getElementById('nextBtn').style.display = 'block';
+                document.getElementById('submitBtn').style.display = 'none';
+            }
+        }
+        
+        // Previous question
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion(currentQuestionIndex);
+            }
+        }
+        
+        // Next question
+        function nextQuestion() {
+            if (currentQuestionIndex < questiondb.length - 1) {
+                currentQuestionIndex++;
+                showQuestion(currentQuestionIndex);
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            showQuestion(currentQuestionIndex);
+            questionDiv.appendChild(optionsDiv);
+            container.appendChild(questionDiv);
+        });
+        
+        // Generate questions on page load
+        document.addEventListener('DOMContentLoaded', generateQuestions);
+    
+    </script>
 </body>
 </html>
